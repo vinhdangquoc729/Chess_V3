@@ -104,7 +104,7 @@ WEIGHTS = {
 CENTER_SQUARES = [chess.E4, chess.D4, chess.E5, chess.D5]
 
 def evaluate_board_v2(board):
-    # --- Material + PST ---
+    #Material + PST
     mat = 0
     pst_score = 0
     for sq, piece in board.piece_map().items():
@@ -115,7 +115,7 @@ def evaluate_board_v2(board):
                       if piece.color == chess.WHITE
                       else -(PST[piece.piece_type][idx]) - 1)
 
-    # --- Mobility ---
+    #Mobility
     board_turn = board.turn
     board.turn = chess.WHITE
     w_moves = board.legal_moves.count()
@@ -124,7 +124,7 @@ def evaluate_board_v2(board):
     board.turn = board_turn  # restore
     mobility = w_moves - b_moves
 
-    # --- King Safety ---
+    #King Safety
     def pawn_shield(color):
         ksq = board.king(color)
         r = chess.square_rank(ksq)
@@ -144,7 +144,7 @@ def evaluate_board_v2(board):
     b_attack = len(board.attackers(chess.WHITE, board.king(chess.BLACK)))
     king_safety = (pawn_shield(chess.WHITE) - w_attack) - (pawn_shield(chess.BLACK) - b_attack)
 
-    # --- Pawn Structure (isolated, doubled, passed) ---
+    #Pawn Structure (isolated, doubled, passed)
     def pawn_structure(color):
         pawns = list(board.pieces(chess.PAWN, color))
         file_counts = {}
@@ -169,16 +169,15 @@ def evaluate_board_v2(board):
                     blocked = True
                     break
             if not blocked: passed += 1
-        # phạt iso, dbl; thưởng passed
         return -15*iso -15*dbl + 25*passed
 
     pawn_struct = pawn_structure(chess.WHITE) - pawn_structure(chess.BLACK)
 
-    # --- Bishop Pair ---
+    #Bishop Pair
     bp = (2 <= len(board.pieces(chess.BISHOP, chess.WHITE))) - (2 <= len(board.pieces(chess.BISHOP, chess.BLACK)))
     bishop_pair = 50 * bp
 
-    # --- Center Control ---
+    #Center Control
     center = sum(len(board.attackers(chess.WHITE, sq)) for sq in CENTER_SQUARES) \
            - sum(len(board.attackers(chess.BLACK, sq)) for sq in CENTER_SQUARES)
 
@@ -252,10 +251,6 @@ def minimax(board, depth, alpha, beta, maximizing_player, trans_table=None):
         return result
 
 def iterative_deepening(board, max_depth, maximizing_player, time_limit=None):
-    """
-    Iteratively deepens minimax search up to max_depth or until time_limit (in seconds) is reached.
-    Returns the best move found.
-    """
     best_move = None
     start_time = time.time()
     for depth in range(1, max_depth + 1):
