@@ -175,7 +175,7 @@ def AI_move_white(game):
     if game.ai_white == "m2":
         move = minimax_move(game, 2, True)
     if game.ai_white == "m3":
-        move = minimax_iterative(game, 5, True, 5)
+        move = minimax_move(game, 4, True)
     if game.ai_white == "lstm":
         move = lstm_move_256(game)
     if game.ai_white == "cnn-lstm":
