@@ -102,13 +102,13 @@ class Game:
         self.promoting_square = {}
         self.highlight_last_move = []
         self.RNNModel = model.ChessRNN()
-        self.RNNModel.load_state_dict(torch.load('model/model.pth'))
+        self.RNNModel.load_state_dict(torch.load('model/model.pth', map_location=torch.device('cpu')))
         self.LSTMModel256 = model.ChessLSTM256()
-        self.LSTMModel256.load_state_dict(torch.load('model/lstm_256_final.pth'))
+        self.LSTMModel256.load_state_dict(torch.load('model/lstm_256_final.pth', map_location=torch.device('cpu')))
         self.LSTMModel640 = model.ChessLSTM640()
-        self.LSTMModel640.load_state_dict(torch.load('model/lstm_640_final.pth'))
+        self.LSTMModel640.load_state_dict(torch.load('model/lstm_640_final.pth', map_location=torch.device('cpu')))
         self.CNN_LSTMModel = model.ChessCNNLSTM()
-        self.CNN_LSTMModel.load_state_dict(torch.load('model/chess_cnn_lstm_3m_2.pth'))
+        self.CNN_LSTMModel.load_state_dict(torch.load('model/chess_cnn_lstm_3m_2.pth', map_location=torch.device('cpu')))
 #        self.finetunedModel = model.DQNChessLSTM(self.LSTMModel)
 #        self.finetunedModel.load_state_dict(torch.load('model/finetuned_chess_lstm_dqn_100.pth'))
         self.frame = pygame.image.load('img/frame.png')
