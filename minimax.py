@@ -103,10 +103,24 @@ WEIGHTS = {
 
 CENTER_SQUARES = [chess.E4, chess.D4, chess.E5, chess.D5]
 
+def is_endgame(board):
+    # Simple: only kings and pawns, or very low material
+    material = sum(PIECE_VALUES[p.piece_type] for p in board.piece_map().values())
+    return material <= 1300  # Tune this threshold
+
+def king_activity(board):
+    # Encourage king to center in endgame
+    white_king = board.king(chess.WHITE)
+    black_king = board.king(chess.BLACK)
+    white_score = max(0, 4 - min(abs(chess.square_file(white_king) - 3.5), abs(chess.square_rank(white_king) - 3.5)))
+    black_score = max(0, 4 - min(abs(chess.square_file(black_king) - 3.5), abs(chess.square_rank(black_king) - 3.5)))
+    return white_score - black_score
+
 def evaluate_board_v2(board):
     #Material + PST
     mat = 0
     pst_score = 0
+    endgame = is_endgame(board)
     for sq, piece in board.piece_map().items():
         val = PIECE_VALUES[piece.piece_type]
         mat += val if piece.color == chess.WHITE else -val
@@ -169,7 +183,7 @@ def evaluate_board_v2(board):
                     blocked = True
                     break
             if not blocked: passed += 1
-        return -15*iso -15*dbl + 25*passed
+        return -15*iso -15*dbl + (25 if not endgame else 50)*passed
 
     pawn_struct = pawn_structure(chess.WHITE) - pawn_structure(chess.BLACK)
 
@@ -180,6 +194,10 @@ def evaluate_board_v2(board):
     #Center Control
     center = sum(len(board.attackers(chess.WHITE, sq)) for sq in CENTER_SQUARES) \
            - sum(len(board.attackers(chess.BLACK, sq)) for sq in CENTER_SQUARES)
+    
+    king_act = 0
+    if endgame:
+        king_act = 20 * king_activity(board)
 
     score = (
         WEIGHTS["material"]    * mat
@@ -189,6 +207,7 @@ def evaluate_board_v2(board):
       + WEIGHTS["pawn_struct"] * pawn_struct
       + WEIGHTS["bishop_pair"] * bishop_pair
       + WEIGHTS["center"]      * center
+      + king_act
     )
     return score
 
